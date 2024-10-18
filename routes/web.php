@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BlogController;
 
 /**
  * Auth routes
@@ -77,4 +79,25 @@ Route::group(['as' => 'protection.'], function () {
     Route::get('membership', 'MembershipController@index')->name('membership')->middleware('protection:' . config('protection.membership.product_module_number') . ',protection.membership.failed');
     Route::get('membership/access-denied', 'MembershipController@failed')->name('membership.failed');
     Route::get('membership/clear-cache/', 'MembershipController@clearValidationCache')->name('membership.clear_validation_cache');
+});
+
+
+Route::get('/complete-registration', 'Auth\RegisterController@completeRegistration');
+
+Route::post('/2fa', function () {
+    return redirect(URL()->previous());
+})->name('2fa')->middleware('2fa');
+
+Route::get('tes/2fa', 'MembershipController@index')->name('tes.2fa')->middleware(['auth', '2fa']);
+
+
+// Halaman Utama Blog
+Route::prefix('blog')->name('blog.')->group(function () {
+    Route::get('/', [BlogController::class, 'index'])->name('index');
+    Route::get('/create', [BlogController::class, 'create'])->name('create');
+    Route::post('/', [BlogController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [BlogController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [BlogController::class, 'update'])->name('update');
+    Route::delete('/{id}', [BlogController::class, 'destroy'])->name('destroy');
+    Route::get('/search', [BlogController::class, 'search'])->name('search');
 });
